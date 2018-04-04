@@ -1,6 +1,14 @@
 /**
  * \file Server.java
- * \brief Defines the server constants and the rest paths
+ * \brief Defines the server constants and the rest paths, server rest call methods
+ * 
+ * This class defines the public methods the user should call with the minimal number of parameters
+ * The java fields building (encoding and decoding) are in charge of the respective database collection models
+ * Manager and Project
+ * 
+ * @version 1.0.0
+ * @date April 2018
+ * @author Enrico Miglino <enrico.miglino@gmail.com>
  */
 package console.rest.client.lukasj;
 
@@ -12,6 +20,9 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 //! Server connection parameters and rest paths
 public class Server {
 	//! Server URI
@@ -21,7 +32,9 @@ public class Server {
 	//! Project status enum list
 	enum Status { pending, complete, progress, delayed, closed };
 	//! Rest API calls enum list
-	enum Rest { master, project, login };
+	private enum Rest { master, project, login };
+	//! Rest call return value
+	String serverRetVal;
 	
 	//! Rest API Calls 
 	private Rest[] rest = Rest.values();
@@ -42,10 +55,9 @@ public class Server {
 	 * 
 	 * @param r The Rest endpoint name
 	 * @return The complete URI for the server connection in the format
-	 * http://<Server IP address>:<Server port>/<Rest endpoint>
+	 * http://[Server IP address]:[Server port]/[Rest endpoint]
 	 */
 	private String buildEndPoint(Rest r) {
-		String ep;
 		
 		return ServerURI + ":" + ServerPort + "/" + rest[r.ordinal()].name();
 	}
@@ -59,7 +71,6 @@ public class Server {
 	 * http://[Server IP address]:[Server port]/[Rest endpoint]/[Parameter]
 	 */
 	private String buildEndPoint(Rest r, String p) {
-		String ep;
 		
 		return ServerURI + ":" + ServerPort + "/" + rest[r.ordinal()].name() + "/" + p;
 	}
@@ -78,11 +89,11 @@ public class Server {
 	 * @param callParam The call parameter (optional)
 	 * @param method The call method (GET, POST, DELETE, etc.)
 	 * @param callBody The JSON formatted body for the call (optional)
+	 * @param output If it is set to true, the connection calls a setOutput() to the server
 	 */
-	private void serverRest(Rest endpoint, String callParam, String method, String callBody) {
+	private void serverRest(Rest endpoint, String callParam, String method, String callBody, boolean output) {
         HttpURLConnection connection = null;	///< Server URL connection object
         BufferedReader reader = null;			///< Data buffer
-        String retVal = null;					///< Call return value (string)
         String urlEndpointServerAddress;		///< The http:// ... endpoint string
         URL resetEndpoint;						///< The server URL endpoint
         
@@ -103,6 +114,8 @@ public class Server {
             connection.setRequestMethod(method);
             // Set the application type
             connection.setRequestProperty("Content-Type", "application/json");
+            // Set the connection to accept output
+            connection.setDoOutput(output);
             
             // Fill the body, if needed
             if(callBody != null) {
@@ -118,10 +131,8 @@ public class Server {
             while ((line = reader.readLine()) != null) {
               jsonSb.append(line);
             }
-            retVal = jsonSb.toString();
-       
-            // print out the json response
-            System.out.println(retVal);
+            
+            serverRetVal = jsonSb.toString();
        
           } catch (Exception e) {
             e.printStackTrace();
@@ -145,10 +156,19 @@ public class Server {
 	 * \brief send the rest login call to the server
 	 * @param user
 	 * @param password
-	 * @return
+	 * @return The login server result
 	 */
 	String Login(String user, String password) {
 		
-		return "Login successful";
+		Manager manager = new Manager();
+		
+		manager.setUser(user);
+		manager.setPassword(password);
+		
+		serverRest(Rest.login, null, "POST", manager.buildJsonLogin(), true);
+		
+		return  "Login endpoint : " + buildEndPoint(Rest.login) + "\nLogin body : " + manager.buildJsonLogin() +
+				"\nServer returned : " + serverRetVal;
+		
 	}
 }

@@ -1,10 +1,10 @@
 /**
- * \file App.java
- * \brief Main application entry point
+ * @file App.java
+ * @brief Main application entry point
  * 
- * \version 1.0.0
- * \date April 2018
- * \Author Enrico Miglino <enrico.miglino@gmail.com>
+ * @version 1.0.0
+ * @date April 2018
+ * @author Enrico Miglino <enrico.miglino@gmail.com>
  */
 package console.rest.client.lukasj;
 

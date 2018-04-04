@@ -3,6 +3,8 @@
  * @brief Manages the manager collection data model
  * 
  * Defines the fields, getters and setters of the object "manager"
+ * The class includes also the json methods used to build the rest calls and to decode
+ * the json object server responses
  * 
  * The full set of fields in json format of the collection are the following
  * \code
@@ -24,6 +26,8 @@
  */
 package console.rest.client.lukasj;
 
+import com.google.gson.Gson;
+
 /**
  * @brief Defines the Manager model and the fields getters and setters
  */
@@ -39,6 +43,43 @@ public class Manager {
 	private int __v;			///< Data field
 	
 	/**
+	 * @brief Defines the fields used for the rest login, serialized in json format
+	 * 
+	 * This class is used by the Gson library
+	 */
+	class LoginFields {
+		  private String user;
+		  private String password;
+
+		  /**
+		   * @brief Constructor. Assigns the parameters to the local variables
+		   * 
+		   * \note The local variable names MUST be the json key names
+		   * 
+		   * @param user The user parameter
+		   * @param password The password parameter
+		   */
+		  LoginFields(String user, String password) {
+			  this.user = user;
+			  this.password = password;
+		  }
+		}
+	
+	/**
+	 * @brief Create the json string used by the body of the rest call login
+	 * 
+	 * @return the JSon string serialized
+	 */
+	public String buildJsonLogin() {
+		String jsonLogin;
+		LoginFields fields = new LoginFields(user, password);
+		
+		// Serialization
+		Gson gson = new Gson();
+		return gson.toJson(fields);  
+	}
+	
+	/**
 	 * @brief Constructor
 	 */
 	public Manager() {
@@ -49,7 +90,7 @@ public class Manager {
 	 * @brief Constructor
 	 * 
 	 * @param _id Object generated when it is created on the database
-	 * @param manager Manager full name
+	 * @param name Manager full name
 	 * @param email Manager contact email
 	 * @param user Manager login user name
 	 * @param password Manager stored password
