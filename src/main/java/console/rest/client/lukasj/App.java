@@ -21,7 +21,11 @@ public class App
 {
     public static void main( String[] args )
     {
+        //! Rest server class instance
+    	Server restServer = new Server();
+        
         System.out.println( "LukasJ Client 1.0.0" );
 
+        System.out.println(restServer.Login("mj011", "lukeforever"));
     }
 }
