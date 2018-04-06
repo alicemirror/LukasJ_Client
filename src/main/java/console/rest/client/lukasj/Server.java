@@ -32,7 +32,7 @@ public class Server {
 	//! Project status enum list
 	enum Status { pending, complete, progress, delayed, closed };
 	//! Rest API calls enum list
-	private enum Rest { master, project, login };
+	private enum Rest { master, project, login, register };
 	//! Rest call return value
 	String serverRetVal;
 	
@@ -59,7 +59,7 @@ public class Server {
 	 */
 	private String buildEndPoint(Rest r) {
 		
-		return ServerURI + ":" + ServerPort + "/" + rest[r.ordinal()].name();
+		return ServerURI + ":" + ServerPort + "/api/" + rest[r.ordinal()].name();
 	}
 	
 	/**
@@ -72,7 +72,7 @@ public class Server {
 	 */
 	private String buildEndPoint(Rest r, String p) {
 		
-		return ServerURI + ":" + ServerPort + "/" + rest[r.ordinal()].name() + "/" + p;
+		return ServerURI + ":" + ServerPort + "/api/" + rest[r.ordinal()].name() + "/" + p;
 	}
 
 	/**
@@ -165,9 +165,10 @@ public class Server {
 		manager.setUser(user);
 		manager.setPassword(password);
 		
-		serverRest(Rest.login, null, "POST", manager.buildJsonLogin(), true);
+//		serverRest(Rest.login, null, "POST", manager.buildJsonLogin(), true);
+		serverRest(Rest.register, null, "GET", manager.buildJsonLogin(), true);
 		
-		return  "Login endpoint : " + buildEndPoint(Rest.login) + "\nLogin body : " + manager.buildJsonLogin() +
+		return  "Login endpoint : " + buildEndPoint(Rest.register) + "\nLogin body : " + manager.buildJsonLogin() +
 				"\nServer returned : " + serverRetVal;
 		
 	}
