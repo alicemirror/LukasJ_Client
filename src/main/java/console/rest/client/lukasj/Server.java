@@ -13,15 +13,12 @@
 package console.rest.client.lukasj;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 //! Server connection parameters and rest paths
 public class Server {
@@ -91,11 +88,12 @@ public class Server {
 	 * @param callBody The JSON formatted body for the call (optional)
 	 * @param output If it is set to true, the connection calls a setOutput() to the server
 	 */
-	private void serverRest(Rest endpoint, String callParam, String method, String callBody, boolean output) {
+	private void serverRest(Rest endpoint, String callParam, String method, String callBody, boolean output) throws MalformedURLException {
         HttpURLConnection connection = null;	///< Server URL connection object
         BufferedReader reader = null;			///< Data buffer
         String urlEndpointServerAddress;		///< The http:// ... endpoint string
-        URL resetEndpoint;						///< The server URL endpoint
+        URL restEndpoint;						///< The server URL endpoint
+        String agent = "Mozilla/4.0";			///< The user agent
         
         // Decide how to build the server URL with the rest endpoint and optional parameters 
     	if(callParam != null) {
@@ -104,26 +102,30 @@ public class Server {
     		urlEndpointServerAddress = buildEndPoint(endpoint);
     	}
 
+		restEndpoint = new URL(urlEndpointServerAddress);
+        String encodedData = callBody;
         
         try {
         	// Create URL endpoint with the optional body
-    		resetEndpoint = new URL(urlEndpointServerAddress);
-
-            connection = (HttpURLConnection) resetEndpoint.openConnection();
+            connection = (HttpURLConnection) restEndpoint.openConnection();
+            // Set the connection to accept output
+            connection.setDoOutput(output);
             // Set the request method as required from the API
             connection.setRequestMethod(method);
             // Set the application type
             connection.setRequestProperty("Content-Type", "application/json");
-            // Set the connection to accept output
-            connection.setDoOutput(output);
-            
-            // Fill the body, if needed
+            // Set the data content length
+            connection.setRequestProperty( "Content-Length", Integer.toString(encodedData.length()) );
+
+            OutputStream os = connection.getOutputStream();
+
             if(callBody != null) {
-	            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
-	        	out.write(callBody);
-	        	out.close();
-            }
-        	
+            	byte[] osBytes = encodedData.getBytes();
+            	os.write(osBytes);
+            	os.flush();
+            	os.close();
+	        	}
+            
             // Read the response in JSON format and create a JSON string
             reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             StringBuilder jsonSb = new StringBuilder();
@@ -154,8 +156,33 @@ public class Server {
 	
 	/**
 	 * \brief send the rest login call to the server
-	 * @param user
-	 * @param password
+	 * 
+	 * @param name User name to register
+	 * @param role User assigned role
+	 * @return The register call server result
+	 */
+	String Register(String name, String role) {
+		
+		Manager manager = new Manager();
+		
+		manager.setName(name);
+		manager.setRole(role);
+		
+		try {
+			serverRest(Rest.register, null, "POST", manager.buildJsonRegister(), true);
+		} catch (MalformedURLException e) {
+			//! @todo Auto-generated catch block
+			e.printStackTrace();
+		}
+		return  "Register endpoint : " + buildEndPoint(Rest.register) + "\nRegister body content : " + manager.buildJsonRegister() +
+				"\nServer returned : " + serverRetVal;
+	}
+	
+	/**
+	 * \brief send the rest login call to the server
+	 * 
+	 * @param user User login
+	 * @param password User password
 	 * @return The login server result
 	 */
 	String Login(String user, String password) {
@@ -165,11 +192,13 @@ public class Server {
 		manager.setUser(user);
 		manager.setPassword(password);
 		
-//		serverRest(Rest.login, null, "POST", manager.buildJsonLogin(), true);
-		serverRest(Rest.register, null, "GET", manager.buildJsonLogin(), true);
-		
-		return  "Login endpoint : " + buildEndPoint(Rest.register) + "\nLogin body : " + manager.buildJsonLogin() +
+		try {
+			serverRest(Rest.login, null, "POST", manager.buildJsonLogin(), true);
+		} catch (MalformedURLException e) {
+			//! @todo Auto-generated catch block
+			e.printStackTrace();
+		}
+		return  "Login endpoint : " + buildEndPoint(Rest.login) + "\nLogin body content : " + manager.buildJsonLogin() +
 				"\nServer returned : " + serverRetVal;
-		
 	}
 }

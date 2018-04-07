@@ -6,19 +6,13 @@
  * The class includes also the json methods used to build the rest calls and to decode
  * the json object server responses
  * 
- * The full set of fields in json format of the collection are the following
- * \code
-    {
-        "_id": "Generated ID",
-        "manager": "Manager Name",
-        "email": "Manager email",
-        "user": "User login",
-        "password": "Login password",
-        "updatedAt": "Generated update timestamp",
-        "createdAt": "Generated creation timestampt",
-        "__v": Version number (int)
-    },
- * \endcode
+ * @page manager_detail Note on the Manager class
+  * In addition to the database fields part of the collection and stored on 
+ * the 'manager' set of the server MongoDB, there are the two extra fields
+ * 'name' and 'role'. \n
+ * Used by the restful endpoint /api/register to create the token for a new user. This action
+ * is not related to the database and it is expected to refer to a name/role pair corresponding to 
+ * a user/password pair of a database stored user. 
  * 
  * @version 1.0.0
  * @date April 2018
@@ -41,7 +35,16 @@ public class Manager {
 	private String updatedAt;	///< Data field
 	private String createdAt;	///< Data field
 	private int __v;			///< Data field
+	private String name;		///< Data field (user registration only not saved on the database)
+	private String role;		///< Data field (user registration only not saved on the database)
 	
+	/**
+	 * @brief Constructor
+	 */
+	public Manager() {
+		super();
+	}
+
 	/**
 	 * @brief Defines the fields used for the rest login, serialized in json format
 	 * 
@@ -71,7 +74,7 @@ public class Manager {
 	 * @return the JSon string serialized
 	 */
 	public String buildJsonLogin() {
-		String jsonLogin;
+
 		LoginFields fields = new LoginFields(user, password);
 		
 		// Serialization
@@ -80,12 +83,43 @@ public class Manager {
 	}
 	
 	/**
-	 * @brief Constructor
+	 * @brief Defines the fields used y the rest login, serialized in json format
+	 * 
+	 * This class is used by the Gson library
 	 */
-	public Manager() {
-		super();
-	}
+	class RegisterFields {
+		  private String name;
+		  private String role;
 
+		  /**
+		   * @brief Constructor. Assigns the parameters to the local variables
+		   * 
+		   * \note The local variable names MUST be the json key names
+		   * 
+		   * @param name The user parameter to register
+		   * @param role The user role to verify
+		   */
+		  RegisterFields(String name, String role) {
+			  this.name = name;
+			  this.role = role;
+		  }
+		}
+	
+	/**
+	 * @brief Create the json string used by the body of the rest call register
+	 * for new user creation
+	 * 
+	 * @return the JSon string serialized
+	 */
+	public String buildJsonRegister() {
+
+		RegisterFields fields = new RegisterFields(name, role);
+		
+		// Serialization
+		Gson gson = new Gson();
+		return gson.toJson(fields);  
+	}
+	
 	/**
 	 * @brief Constructor
 	 * 
@@ -254,5 +288,42 @@ public class Manager {
 	 */
 	public int get__v() {
 		return __v;
+	}
+	
+	
+	/**
+	 * @brief Field setter
+	 * 
+	 * @param User registration name
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	/**
+	 * @brief Field getter
+	 * 
+	 * @return User registration name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @brief Field setter
+	 * 
+	 * @param User registration role
+	 */
+	public void setRole(String role) {
+		this.role = role;
+	}
+	
+	/**
+	 * @brief Field getter
+	 * 
+	 * @return User registration role
+	 */
+	public String getRole() {
+		return role;
 	}
 }

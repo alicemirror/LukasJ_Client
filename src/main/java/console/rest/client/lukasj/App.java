@@ -26,6 +26,8 @@ public class App
         
         System.out.println( "LukasJ Client 1.0.0" );
 
-        System.out.println(restServer.Login("mj011", "lukeforever"));
+        System.out.println(restServer.Register("mj011", "lukeforever"));
+
+        System.out.println(restServer.Login("jd001", "jdpasswd"));
     }
 }
