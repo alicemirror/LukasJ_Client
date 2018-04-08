@@ -23,7 +23,7 @@ import java.net.URL;
 //! Server connection parameters and rest paths
 public class Server {
 	//! Server URI
-	private String ServerURI = "http://192.168.185.181";
+	private String ServerURI = "http://192.168.1.160";
 	//! Server port
 	private String ServerPort = "3000";
 	//! Project status enum list
