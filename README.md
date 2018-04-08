@@ -9,7 +9,10 @@ The client runs on any platform while the restful server based on NodeJS is suff
 
 For more details on the server features, sources and behavior please see the GitHub repository [LukasJ Server](https://alicemirror.github.io/LukasJ_Server/)
 
-## App running
+# App running
+
+![App running in the Eclipse environment](https://raw.githubusercontent.com/alicemirror/LukasJ_Client/master/images/EclipseTest.png)
+
 The main send the two unprotected Restful APIs to the server **/api/register** and **/api/login**
 
 Both the Restful calls returns the server generated token that can be used for any further protected API call. The console output below shows what happen when the application runs.
@@ -31,3 +34,15 @@ Server returned : {"user":"jd001","password":"jdpasswd","token":"eyJhbGciOiJIUzI
 
 ## Test platforms
 The client has been tested on OSX and Windows10 platforms running the Java 8 RTE
+
+### Test screenshots
+
+Under Mac OSX
+
+![App running in the Eclipse environment](https://raw.githubusercontent.com/alicemirror/LukasJ_Client/master/images/OSXTest.png)
+
+Under Windows 10
+
+![App running in the Eclipse environment](https://raw.githubusercontent.com/alicemirror/LukasJ_Client/master/images/WindowsTest.png)
+
+
